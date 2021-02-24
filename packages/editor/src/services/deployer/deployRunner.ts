@@ -27,14 +27,16 @@ export class DeployRunner {
     private readonly account: IAccount;
     private readonly environment: IEnvironment;
     private readonly contractName: string;
+    private readonly contractArgs: any[];
     private deployFile: string = '';
     private abiFile: string = '';
 
-    constructor(account: IAccount, environment: IEnvironment, contractName: string) {
+    constructor(account: IAccount, environment: IEnvironment, contractName: string, contractArgs: any[], functionName?: string, ) {
         this.account = account;
         this.environment = environment;
         this.contractName = contractName;
         this.currWeb3 = account.type === 'metamask' ? window.web3 : getWeb3(this.environment.endpoint);
+        this.contractArgs = contractArgs;
     }
 
     checkExistingDeployment(buildFiles: IProjectItem[], contractArgs: any[]): Observable<ICheckDeployResult> {
@@ -74,13 +76,14 @@ export class DeployRunner {
         }
     }
 
-    deployExternally(gasSettings: any) {
+    deployExternally(gasSettings: any, value: string) {
         gasSettings = { gasPrice: convertGas(gasSettings.gasPrice), gasLimit: convertGas(gasSettings.gasLimit) };
+        const valueFormatted = value ? convertGas(value) : value;
 
         const params = {
             from: this.account.address,
             to: '',
-            value: '0x0',
+            value: valueFormatted ? valueFormatted : '0x0',
             gasPrice: gasSettings.gasPrice,
             gasLimit: gasSettings.gasLimit,
             data: this.deployFile
@@ -98,13 +101,14 @@ export class DeployRunner {
         }));
     }
 
-    deployToBrowser(gasSettings: any, key: string): Observable<any> {
+    deployToBrowser(gasSettings: any, key: string, value: string): Observable<any> {
         gasSettings = { gasPrice: convertGas(gasSettings.gasPrice), gasLimit: convertGas(gasSettings.gasLimit) };
+        const valueFormatted = value ? convertGas(value) : value;
 
         return Observable.create((observer: Observer<any>) => {
             this.getNonce(this.account.address).then(nonce => {
                 observer.next({ channel: 1, msg: `Nonce for address ${this.account.address} is ${nonce}.` });
-                const tx = signTransaction(this.account.address, nonce, gasSettings, key, this.deployFile);
+                const tx = signTransaction(this.account.address, nonce, gasSettings, key, this.deployFile, undefined, valueFormatted);
                 observer.next({ channel: 1, msg: `Transaction signed.` });
                 observer.next({ channel: 1, msg: `Gaslimit=${gasSettings.gasLimit}, gasPrice=${gasSettings.gasPrice}.` });
                 observer.next({ channel: 1, msg: `Sending transaction to network ${this.environment.name} on endpoint ${this.environment.endpoint}...` });
@@ -157,7 +161,6 @@ export class DeployRunner {
                         return;
                     }
                     observer.next({ msg: 'Contract deployed at address ' + receipt.contractAddress + '.\nDone.', channel: 4 });
-
                     // emit final deployer output
                     const fileName = this.contractName + '.' + this.environment.name;
                     observer.next(<IDeployResult>{

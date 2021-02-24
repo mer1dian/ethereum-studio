@@ -16,12 +16,9 @@
 
 import React from 'react';
 import style from './style.less';
-import { IconRefresh, IconDownloadDApp, IconMore } from '../../../icons';
+import { IconRefresh, IconMore } from '../../../icons';
 import { DropdownContainer, Tooltip, OnlyIf } from '../../../common';
 import { previewService } from '../../../../services';
-import { CannotExportModal } from './CannotExportModal';
-import { DownloadModal } from './DownloadModal';
-import { NoExportableContentModal } from './NoExportableContentModal';
 import { IEnvironment, IAccount } from '../../../../models/state';
 import { TransactionType } from '../../../../models';
 
@@ -36,16 +33,8 @@ function getIframeSrc() {
 const IFRAME_ID = 'appViewIframe';
 
 interface IProps {
-    onToggleWeb3Accounts: () => void;
-    onHideModals: () => void;
-    tryToDownload: () => void;
     notifyTx: (transactionType: TransactionType, hash: string) => void;
-    download: () => void;
     refreshContent: () => void;
-    disableAccounts: boolean;
-    showNoExportableContentModal: boolean;
-    showCannotExportModal: boolean;
-    showDownloadModal: boolean;
     selectedEnvironment: IEnvironment;
     selectedAccount: IAccount;
     isProjectLoaded: boolean;
@@ -57,10 +46,11 @@ export class Preview extends React.Component<IProps> {
 
     componentDidUpdate(prevProps: IProps) {
         const { selectedAccount, htmlToRender } = prevProps;
+        const { refreshContent } = this.props;
 
         if (selectedAccount.name !== this.props.selectedAccount.name) {
-            previewService.setAccount(selectedAccount);
-            this.refreshIframe();
+            previewService.setAccount(this.props.selectedAccount);
+            refreshContent();
         }
 
         if (htmlToRender !== this.props.htmlToRender) {
@@ -88,40 +78,9 @@ export class Preview extends React.Component<IProps> {
         iframe.contentWindow.location.replace(getIframeSrc());
     }
 
-    tryDownload() {
-        const { tryToDownload: tryDownload } = this.props;
-        tryDownload();
-    }
-
-    toggleWeb3Accounts() {
-        const { onToggleWeb3Accounts, refreshContent } = this.props;
-        onToggleWeb3Accounts();
-        refreshContent();
-    }
-
-    renderMoreDropdown() {
-        return (
-            <div className={style.moreContainer} onClick={ e => e.stopPropagation() }>
-                <div className={style.heading}>
-                    <p>Disable Web3 Accounts</p>
-                    <input type='checkbox'
-                        checked={this.props.disableAccounts}
-                        onChange={() => this.toggleWeb3Accounts()} />
-                </div>
-                <div className={style.description}>Simulate that no Web3 accounts are available</div>
-            </div>
-        );
-    }
-
     render() {
         const {
             isProjectLoaded,
-            showCannotExportModal,
-            showNoExportableContentModal,
-            showDownloadModal,
-            selectedEnvironment,
-            onHideModals,
-            download,
             refreshContent
         } = this.props;
 
@@ -134,34 +93,14 @@ export class Preview extends React.Component<IProps> {
                             <Tooltip title='Refresh Page'><IconRefresh /></Tooltip>
                         </button>
 
-                        <button className='btnNoBg' onClick={() => this.tryDownload()}>
-                            <Tooltip title='Download DApp'><IconDownloadDApp /></Tooltip>
-                        </button>
-
-                        <div className={style.urlBar}>{getIframeSrc()}</div>
-
-                        <DropdownContainer dropdownContent={this.renderMoreDropdown()}>
-                            <button className='btnNoBg'>
-                                <Tooltip title='Settings'><IconMore /></Tooltip>
-                            </button>
-                        </DropdownContainer>
+                        {/* // Disable for now
+                        <div className={style.urlBar}>
+                            {getIframeSrc()}
+                        </div> */}
 
                     </div>
                     <iframe id={IFRAME_ID} src={getIframeSrc()}></iframe>
                 </div>
-
-                <OnlyIf test={showNoExportableContentModal}>
-                    <NoExportableContentModal onClose={onHideModals} />
-                </OnlyIf>
-                <OnlyIf test={showCannotExportModal}>
-                    <CannotExportModal onClose={onHideModals} />
-                </OnlyIf>
-                <OnlyIf test={showDownloadModal}>
-                    <DownloadModal
-                        environment={selectedEnvironment}
-                        onClose={onHideModals}
-                        onDownload={download} />
-                </OnlyIf>
             </OnlyIf>
         );
     }

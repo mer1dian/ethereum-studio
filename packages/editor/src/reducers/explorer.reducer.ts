@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Superblocks Lab.  If not, see <http://www.gnu.org/licenses/>.
 
-import { explorerActions, panesActions, projectsActions } from '../actions';
+import { explorerActions, panesActions, projectsActions, deployerActions } from '../actions';
 import { isValidProjectItemName } from './utils';
 import { IExplorerState, IItemNameValidation } from '../models/state';
-import { IProjectItem } from '../models';
+import { IProjectItem, ProjectItemTypes } from '../models';
 import { AnyAction } from 'redux';
 import { generateUniqueId } from '../services/utils';
 import {
@@ -26,13 +26,16 @@ import {
     ensurePath,
     findItemById,
     sortProjectItems,
-    updateItemInTree
+    updateItemInTree,
+    traverseTree
 } from './explorerLib';
 
 export const initialState: IExplorerState = {
     tree: null,
     itemNameValidation: { isNameValid: false, isNotDuplicate: false },
-    lastDeletedId: null
+    lastDeletedId: null,
+    hasUnstoredChanges: false,
+    currentItem: null
 };
 
 function hasNoChildWithName(parentItem: Nullable<IProjectItem>, name: string) {
@@ -46,7 +49,19 @@ function hasNoChildWithId(parentItem: Nullable<IProjectItem>, id: string) {
 export default function explorerReducer(state = initialState, action: AnyAction) {
     switch (action.type) {
         case explorerActions.INIT_EXPLORER:
-            return { ...state, tree: action.data };
+
+            // In order to make it more obvious the access to compile/deploy/app, lets auto expand those files to make it dead obvious
+            const rootItem = action.data;
+            traverseTree(rootItem, ((projectItem: IProjectItem) => {
+                if ((projectItem.type === ProjectItemTypes.Folder && projectItem.name === 'app' || projectItem.name === 'contracts')
+                    || projectItem.name.toLowerCase().endsWith('.sol')) {
+                    projectItem.opened = true;
+                }
+            }));
+            return {
+                ...state,
+                tree: rootItem
+            };
 
         case explorerActions.TOGGLE_TREE_ITEM:
             return {
@@ -288,10 +303,36 @@ export default function explorerReducer(state = initialState, action: AnyAction)
             return { ...state };
         }
 
+        case panesActions.SET_UNSAVED_CHANGES: {
+            return {
+                ...state,
+                hasUnstoredChanges: true
+            };
+        }
+
+        case panesActions.STORE_UNSAVED_CHANGES: {
+            return {
+                ...state,
+                hasUnstoredChanges: false
+            };
+        }
+
         case projectsActions.SAVE_PROJECT_SUCCESS:
             return {
                 ...state,
                 tree: action.data.files
+            };
+
+        case explorerActions.COMPILE_CONTRACT:
+            return {
+                ...state,
+                currentItem: action.data
+            };
+
+        case deployerActions.DEPLOY_SUCCESS:
+            return {
+                ...state,
+                currentItem: null
             };
 
         default:

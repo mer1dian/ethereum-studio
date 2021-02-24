@@ -19,7 +19,6 @@ import { IEnvironment, IAccount } from '../models/state';
 import { TransactionType } from '../models';
 
 let iframeId: string;
-let disableAccounts = false;
 
 export const previewService = {
     superProvider: <any>null,
@@ -69,7 +68,4 @@ export const previewService = {
             this.superProvider.setEnvironment(environment);
         }
     },
-
-    get disableAccounts() { return disableAccounts; },
-    set disableAccounts(value) { disableAccounts = value; },
 };

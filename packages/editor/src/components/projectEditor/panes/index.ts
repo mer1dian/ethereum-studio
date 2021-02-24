@@ -18,11 +18,14 @@ import { Dispatch } from 'redux';
 import { IProjectItem } from '../../../models';
 import { connect } from 'react-redux';
 import { Panes } from './panes';
-import { panesActions, explorerActions, contractConfigActions } from '../../../actions';
+import { panesActions, explorerActions, contractConfigActions, panelsActions } from '../../../actions';
 import { deployerActions } from '../../../actions/deployer.actions';
+import { Panels } from '../../../models/state';
 
 const mapStateToProps = (state: any) => ({
+    tree: state.explorer.tree,
     panes: state.panes.items,
+    panels: state.panels,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
@@ -49,16 +52,11 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
             dispatch(panesActions.movePane(fromIndex, toIndex));
         },
 
-        // contract related
-        onConfigureContract: (file: IProjectItem) => {
-            dispatch(contractConfigActions.openContractConfig(file));
+        // Actions
+        togglePanel(panel: Panels) {
+            dispatch(panelsActions.togglePanel(panel));
         },
-        onCompileContract: (file: IProjectItem) => {
-            dispatch(explorerActions.compileContract(file));
-        },
-        onDeployContract: (file: IProjectItem) => {
-            dispatch(deployerActions.deployContract(file));
-        },
+
     };
 };
 

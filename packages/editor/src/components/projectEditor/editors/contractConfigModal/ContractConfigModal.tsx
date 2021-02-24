@@ -1,3 +1,4 @@
+
 // Copyright 2019 Superblocks AB
 //
 // This file is part of Superblocks Lab.
@@ -19,9 +20,10 @@ import classNames from 'classnames';
 import style from './style.less';
 import { ConstructorArgumentsList } from './constructorArgumentsList';
 import { ConstructorArgumentsHeader } from './constructorArgumentsHeader';
-import { ContractArgTypes, IProjectItem, IContractArgData, IContractConfiguration } from '../../../../models';
+import { IProjectItem, IContractArgData, IContractConfiguration } from '../../../../models';
 import { IAccount } from '../../../../models/state';
-import { Modal, ModalHeader } from '../../../common';
+import { Modal, ModalHeader, Tooltip } from '../../../common';
+import { IconHelp } from '../../../icons';
 
 interface IProps {
     selectedContract: {
@@ -55,6 +57,9 @@ export default class ContractConfigModal extends Component<IProps, IState> {
 
     _updateProps = () => {
         // const { file } = this.props;
+
+
+
 
         // // Only update internal props if we are clean.
         // if (!this.state.isDirty) {
@@ -112,27 +117,15 @@ export default class ContractConfigModal extends Component<IProps, IState> {
         });
     }
 
-    addArgument = () => {
-        this.setState((prevState: IState) => ({
-            isDirty: true,
+    onValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        this.setState({
             newContractConfig: {
                 ...this.state.newContractConfig,
-                args: [...prevState.newContractConfig.args, { type: ContractArgTypes.value, value: '' }],
-
-            }
-        }));
-    }
-
-    removeArgument = (index: number) => {
-        if (index > -1) {
-            this.setState((prevState: IState) => ({
-                isDirty: true,
-                newContractConfig: {
-                    ...this.state.newContractConfig,
-                    args: prevState.newContractConfig.args.filter((_, i) => i !== index),
-                }
-            }));
-        }
+                value,
+            },
+            isDirty: true
+        });
     }
 
     render() {
@@ -164,15 +157,36 @@ export default class ContractConfigModal extends Component<IProps, IState> {
                                         onChange={this.onNameChange}
                                     />
                                 </div>
+                                <div className={style.valueContainer}>
+                                    <div className='superInputDark'>
+                                        <label htmlFor='value'>
+                                            Value
+                                            <Tooltip html={
+                                                    <div className='arrayInfoTooltip'>
+                                                        <div>Value is in Wei units</div>
+                                                        <div className='example'>This field can be used when a contract defines payable constructor and requires initial funding</div>
+                                                        <div className='example'>For example: constructor() public payable {'{ ... }'}</div>
+                                                    </div>
+                                                }>
+                                                <IconHelp className={style.icon} />
+                                            </Tooltip>
+                                        </label>
+                                        <input
+                                            id='value'
+                                            type='number'
+                                            placeholder='0'
+                                            value={newContractConfig.value}
+                                            onChange={this.onValueChange}
+                                        />
+                                    </div>
+                                </div>
                                 <div className={style.constructorContainer}>
                                     <ConstructorArgumentsHeader />
                                     <ConstructorArgumentsList
                                         args={newContractConfig.args}
                                         accounts={accounts.map(account => account.name)}
                                         onArgChange={this.onArgumentChange}
-                                        onArgRemove={this.removeArgument}
-                                        onArgAdd={this.addArgument}
-                                        />
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -188,3 +202,4 @@ export default class ContractConfigModal extends Component<IProps, IState> {
         );
     }
 }
+

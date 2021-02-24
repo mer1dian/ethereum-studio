@@ -28,4 +28,6 @@ export interface IExplorerState {
     tree: Nullable<IProjectItem>;
     itemNameValidation: IItemNameValidation;
     lastDeletedId: Nullable<string>;
+    hasUnstoredChanges: boolean;
+    currentItem: Nullable<IProjectItem>;
 }

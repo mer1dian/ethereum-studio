@@ -6,6 +6,6 @@ dist
 *.iml
 */**/openzeppelin.json
 */**/templates/*
-.env.local
 .vscode
 !templates/**
+/public/env-config.js

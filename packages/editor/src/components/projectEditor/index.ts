@@ -17,7 +17,7 @@
 import { connect } from 'react-redux';
 import { ProjectEditor } from './ProjectEditor';
 import { projectSelectors, contractConfigSelectors } from '../../selectors';
-import { panelsActions, contractConfigActions, modalActions } from '../../actions';
+import { panelsActions, contractConfigActions, modalActions, outputLogActions, projectsActions } from '../../actions';
 import { AnyAction } from 'redux';
 import { Dispatch } from 'react';
 import { Panels } from '../../models/state';
@@ -26,13 +26,18 @@ const mapStateToProps = (state: any) => ({
     panels: state.panels,
     selectedEnvironment: projectSelectors.getSelectedEnvironment(state),
     showContractConfig: contractConfigSelectors.showContractConfig(state),
-    showExternalProviderInfo: state.deployer.showExternalProviderInfo
+    showExternalProviderInfo: state.deployer.showExternalProviderInfo,
+    unreadRows: state.outputLog.unreadRows,
+    rows: state.outputLog.rows
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
     return {
         togglePanel(panel: Panels) {
             dispatch(panelsActions.togglePanel(panel));
+        },
+        openPanel(panel: Panels) {
+            dispatch(panelsActions.openPanel(panel));
         },
         closePanel(panel: Panels) {
             dispatch(panelsActions.closePanel(panel));
@@ -42,9 +47,11 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
         },
         showModal: (modalType: string, modalProps: any) => {
             dispatch(modalActions.showModal(modalType, modalProps));
-        }
+        },
+        exportProject() {
+            dispatch(projectsActions.exportProject());
+        },
     };
 };
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectEditor);

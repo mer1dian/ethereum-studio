@@ -27,7 +27,13 @@ interface IProps {
 }
 
 function getTime(row: IMessageLogRow) {
-    return row.timestamp.getHours() + ':' + row.timestamp.getMinutes();
+    const options = {
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+    };
+
+    return `${row.timestamp.toLocaleDateString(navigator.language, options)} :`;
 }
 
 export const MessagesPanel = (props: IProps) => {
@@ -35,7 +41,7 @@ export const MessagesPanel = (props: IProps) => {
 
     const scrollToBottom = () => {
         if (messagesAnchor !== null && messagesAnchor.current !== null) {
-            messagesAnchor.current.scrollIntoView({ behavior: 'smooth' });
+            messagesAnchor.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     };
 

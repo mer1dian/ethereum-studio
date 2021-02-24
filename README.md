@@ -6,28 +6,25 @@
 [Ethereum Studio](https://superblocks.com/ethereum-studio) is an integrated development environment (IDE) to learn, build and deploy decentralized apps (DApps) for _Ethereum_. It's a full browser experience which requires no installations to run.
 
 <p align="center">
-  <img alt="Ethereum Studio in action" src="https://user-images.githubusercontent.com/7814134/45118436-d135c300-b158-11e8-8271-648495d35d29.png">
+  <img alt="Ethereum Studio in action" src="https://user-images.githubusercontent.com/7814134/78335917-d0f8e600-758e-11ea-91e1-2433eaaef6f4.png">
 </p>
+
 
 **Ethereum Studio** has a built in _Solidity_ compiler and _Ethereum Virtual Machine_. It also works with local and public networks.
 
-To try it out, go to [studio.superblocks.com](https://studio.superblocks.com).
+To try it out, go to [studio.ethereum.org](https://studio.ethereum.org).
 
 ## Features
-* In-browser Blockchain
+* In-browser EVM
 * Code Autocompletion
 * Bootstrap your App
 * Live code your WebApp
-* Deploy to Networks
-* Run with custom node
 * Built-in wallets
-* Export your full DApp
-* Metamask Integration
 * Powered by Monaco Editor
 
 
 ## Quick start
-Below is described how to get the **Ethereum Studio** _PreactJS_ project setup and running locally.
+Below is described how to get the **Ethereum Studio** project setup and running locally.
 
 ### Install node modules
 ```sh
@@ -43,7 +40,7 @@ Browse to `http://localhost:3000`. Note that if you use any other hostname/IP th
 
 ### Make a production build
 ```sh
-npm build
+npm run build
 ```
 
 The dist files will be inside `./dist`. Note that the this command uses production version of ".env" file, so in order to test it locally please create a ".env.local" with proper ORIGIN variable value prior to build.
@@ -71,3 +68,4 @@ Contributions are welcome. Please, visit the Wiki for a guide on [How to Contrib
 
 ## License
 **Ethereum Studio** is free software and GPLv3 licensed. See the COPYING file for details.
+

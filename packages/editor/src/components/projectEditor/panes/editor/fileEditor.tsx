@@ -22,15 +22,14 @@ import { IProjectItem } from '../../../../models';
 import { EditorToolbar } from './editorToolbar';
 import { isSmartContract, getFileExtension, isMarkdown } from '../../../../utils/file';
 import { MarkdownPreview } from './markdownPreview';
+import { getItemPath } from '../../../../reducers/explorerLib';
 
 interface IProps {
     file: IProjectItem;
+    tree: IProjectItem;
     visible: boolean;
     hasUnsavedChanges: boolean;
     onSave: (fileId: string, code: string) => void;
-    onCompile: (file: IProjectItem) => void;
-    onDeploy: (file: IProjectItem) => void;
-    onConfigure: (file: IProjectItem) => void;
     onUnsavedChange: (fileId: string, hasUnsavedChanges: boolean, code: any) => void;
 }
 
@@ -56,6 +55,7 @@ export class FileEditor extends React.Component<IProps, IState> {
     language: string = '';
     options: any = {};
     code: string = '';
+    contractSource: string = '';
 
     constructor(props: IProps) {
         super(props);
@@ -79,13 +79,15 @@ export class FileEditor extends React.Component<IProps, IState> {
         };
 
         this.code = props.file.code || '';
+        this.contractSource = getItemPath(props.tree, props.file);
     }
 
     componentDidUpdate(prevProps: IProps) {
-        if (this.props.visible && !prevProps.visible) {
-            const monaco: any = this.refs.monaco;
-            // restore focus when editor is shown
-            if (monaco) {
+        const monaco: any = this.refs.monaco;
+        if (monaco) {
+            monaco.editor.layout();
+
+            if (this.props.visible && !prevProps.visible) {
                 setTimeout(() => monaco.editor.focus(), 100);
             }
         }
@@ -123,9 +125,6 @@ export class FileEditor extends React.Component<IProps, IState> {
                     isSmartContract={isSmartContract(file.name)}
                     hasUnsavedChanges={hasUnsavedChanges}
                     onSave={this.onSave}
-                    onCompile={ () => this.props.onCompile(file) }
-                    onDeploy={ () => this.props.onDeploy(file) }
-                    onConfigure={ () => this.props.onConfigure(file) }
                     isMarkdown={isMarkdown(file.name)}
                     showMarkdownPreview={showMarkdownPreview}
                     onShowMarkdownPreview={ () => this.toggleMarkdownPreview()} />
@@ -144,6 +143,7 @@ export class FileEditor extends React.Component<IProps, IState> {
                             onChange={this.onFileChange}
                             editorDidMount={this.editorDidMount}
                             requireConfig={requireConfig}
+                            automaticLayout={true}
                             height='calc(100% - 42px)'
                         />
                 }

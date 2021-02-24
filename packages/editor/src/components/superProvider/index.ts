@@ -70,7 +70,7 @@ export default class SuperProvider {
                 evmService.getProvider().sendAsync(payload, ((err: any, result: any) => {
                     if (err) {
                         console.log(err);
-                        reject('Problem calling the provider async call');
+                        reject('Problem calling the provider async call: ' + err);
                     }
                     resolve(result);
                 }));
@@ -206,7 +206,7 @@ export default class SuperProvider {
 
                 const nonce = await this.getNonce(this.selectedEnvironment.endpoint, this.selectedAccount.address)
                     .catch((err) => console.log(err));
-                if (!nonce) {
+                if (nonce == null) {  // Catches both null and undefined but not 0.
                     alert('The nonce could not be fetched');
                     return;
                 }
@@ -237,10 +237,12 @@ export default class SuperProvider {
                     const result = await this.send(obj3, data.endpoint);
                     sendIframeMessage(null, result);
                 } catch (error) {
-                    console.log(error);
+                    alert(error);
                     sendIframeMessage(error, null);
                 }
             }
+        } else if (payload.method === 'eth_accounts') {
+            sendIframeMessage(null, {id: payload.id, jsonrpc: '2.0', result: [this.selectedAccount.address]});
         } else {
             try {
                 const result = await this.send(data.payload, data.endpoint);

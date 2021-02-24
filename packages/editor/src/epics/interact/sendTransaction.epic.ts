@@ -26,8 +26,9 @@ import { IEnvironment, IAccount, IDeployedContract } from '../../models/state';
 import { walletService } from '../../services';
 import Networks from '../../networks';
 
-function getData(instance: any, name: string, args: any[]) {
-    return instance[name].getData(...args);
+function getData(instance: any, name: string, abiIndex: number, args: any[]) {
+    const inputTypes = instance.abi[abiIndex].inputs.map((input: any) => input.type).join();
+    return instance[name][inputTypes].getData(...args);
 }
 
 function sendInternalTransaction(endpoint: string, tx: any) {
@@ -114,7 +115,8 @@ function doSendExternally$(environment: IEnvironment, selectedAccount: IAccount,
             concat(
                 of(outputLogActions.addRows([ result ])),
                 of(deployerActions.hideExternalProviderInfo()),
-                of(transactionsActions.addTransaction(TransactionType.Interact, result.hash, undefined, result.contractName)),
+                of(transactionsActions.addTransaction(TransactionType.Interact, result.hash, undefined, result.contractName),
+                of(transactionsActions.checkSentTransactions(environment.endpoint, contractName))),
                 // finalizeDeploy(state, deployRunner, result.hash, state.deployer.outputPath, false)
             )
         ),
@@ -151,17 +153,16 @@ export const sendTransactionEpic: Epic = (action$, state$) => action$.pipe(
     ofType(interactActions.SEND_TRANSACTION),
     withLatestFrom(state$),
     switchMap(([action, state]) => {
-
         const deployedContract: IDeployedContract = action.data.deployedContract;
         const value = action.data.value;
-
+        const {args, rawAbiDefinitionName} = action.data;
         const selectedEnv = projectSelectors.getSelectedEnvironment(state);
         const selectedAccount = projectSelectors.getSelectedAccount(state);
         const networkSettings = state.settings.preferences.network;
 
         return getContractInstance$(selectedEnv.endpoint, deployedContract)
             .pipe(
-                map(contractInstance => getData(contractInstance, action.data.rawAbiDefinitionName, action.data.args)),
+                map(contractInstance => getData(contractInstance, action.data.rawAbiDefinitionName, action.data.abiIndex, action.data.args)),
                 switchMap(data => {
                     if (selectedAccount.type === 'metamask') {
                         return tryExternalSend$(selectedEnv, selectedAccount, networkSettings, deployedContract.contractName, data, deployedContract.address, value);
@@ -175,7 +176,10 @@ export const sendTransactionEpic: Epic = (action$, state$) => action$.pipe(
                                 if (output.msg) { // intermediate messages coming
                                     return of(outputLogActions.addRows([ output ]));
                                 } else if (output.hash && output.tx) { // result
-                                    return of(interactActions.sendTransactionSuccess(output.hash), transactionsActions.addTransaction(TransactionType.Interact, output.hash, undefined, deployedContract.contractName));
+                                    return of(
+                                        interactActions.sendTransactionSuccess(output.hash),
+                                        transactionsActions.addTransaction(TransactionType.Interact, output.hash, undefined, undefined, deployedContract.contractName, undefined, args, rawAbiDefinitionName),
+                                        transactionsActions.checkSentTransactions(selectedEnv.endpoint, deployedContract.contractName));
                                 } else { // unexpected error
                                     return of(outputLogActions.addRows([{ msg: 'Unexpected error occurred. Please try again!', channel: 3 }]));
                                 }

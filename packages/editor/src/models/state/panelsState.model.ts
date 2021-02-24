@@ -20,7 +20,8 @@ export enum Panels {
     Transactions = 'Transactions',
     OutputLog = 'OutputLog',
     MessageLog = 'MessageLog',
-    Interact = 'Interact'
+    Interact = 'Interact',
+    Configure = 'Configure'
 }
 
 export enum PanelSides {

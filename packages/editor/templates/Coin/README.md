@@ -14,6 +14,8 @@ This project is an example application that teaches you how to:
 
 ### The smart contract
 
+> Find the smart contract file in _contracts/Coin.sol_
+
 The contract allows only its creator to create new coins (different issuance scheme are possible). Anyone can send coins to each other without a need for registering with a username and password, and all you need is an Ethereum keypair.
 
 The line `address public minter;` declares a state variable of an [`address` type](https://solidity.readthedocs.io/en/latest/types.html#address). The `address` type is a 160-bit value that does not allow any arithmetic operations. It is suitable for storing addresses of contracts, or a hash of the public half of a keypair belonging to [external accounts](https://solidity.readthedocs.io/en/latest/introduction-to-smart-contracts.html#accounts).
@@ -50,7 +52,25 @@ The `mint` function sends an amount of newly created coins to another address. T
 
 Anyone can use the `send` (who already has some of these coins) to send coins to anyone else. If the sender does not have enough coins to send, the `require` call fails and provides the sender with an appropriate error message string.
 
+### 1. Configure
+
+Configuring the contract allows you to set the name of the contract and the initial values sent to the constructor as arguments. You can configure the contract by going to the Deploy panel, accessed by clicking on the rocket icon in the left side menu and choosing _Configure_ option. In this example, the constructor doesn't accept arguments by default, so no configuration is necessary.
+
+### 2. Compile
+
+Solidity is a compiled language, and you need to convert the Solidity code into bytecode before the contract can run. We will automatically compile the code every time you save your changes or when performing a deployment.  
+
+### 3. Deploy
+
+Every smart contract runs at an address on the Ethereum blockchain, and you must deploy it to an address before it can run. When using Studio, the browser simulates the network, but there are several test networks and one main network for the Ethereum blockchain.
+
+Deploy the contract by going to the _Deploy_ panel, accessed by clicking on the rocket icon in the left side menu.
+
 ### The Web app
+
+> Find the HTML file in _app/app.html_
+> Find the CSS file in _app/app.css_
+> Find the JavaScript file in _app/app.js_
 
 This tutorial doesn't cover the HTML or CSS as it's not web3 specific, aside from the element IDs that the JavaScript manipulates. A lot of the JavaScript code follows standard patterns for object-oriented JavaScript, so this tutorial focuses on the web3js specific parts.
 
@@ -64,7 +84,7 @@ function Coin(Contract) {
 }
 ```
 
-Initialize the `Coin` object and create an instance of the web3js library, passing Metamask as a provider for the contract, or any other network endpoint you can configure in the IDE settings. The initialization function then defines the interface for the contract using [the web3js contract object](https://web3js.readthedocs.io/en/v1.2.1/web3-eth-contract.html#new-contract) and then defines the address of the instance of the contract for the `Coin` object.
+Initialize the `Coin` object and create an instance of the web3js library, passing Metamask as a provider for the contract. The initialization function then defines the interface for the contract using [the web3js contract object](https://web3js.readthedocs.io/en/v1.2.1/web3-eth-contract.html#new-contract) and then defines the address of the instance of the contract for the `Coin` object.
 
 ```javascript
 Coin.prototype.init = function() {
@@ -97,9 +117,9 @@ Coin.prototype.bindButtons = function() {
 Coin.prototype.onReady = function() {
     this.bindButtons();
     this.init();
-    this.main();
 };
 
+if(typeof(Contracts) === "undefined") var Contracts={ Coin: { abi: [] }};
 var coin = new Coin(Contracts['Coin']);
 
 $(document).ready(function() {
@@ -214,8 +234,19 @@ function isValidAmount(amount) {
 }
 ```
 
-And that's all the code. To see the dapp in action, click _Compile_, then _Deploy_ found under the disclosure triangle of the contract file, then open the _Preview_ tab to see the frontend of the dapp.
+And that's all the code. To see the dapp in action, click _Deploy_ found under the disclosure triangle of the contract file, then open the _Preview_ tab to see the frontend of the dapp.
 
-### Find out more
+## Next Steps
 
 You can read a full tutorial that accompanies this example dapp, plus many more tutorials, on [kauri.io](https://kauri.io/article/bdd65d6155a74b8aa52672b46b7230a8/v1/a-fullstack-dapp-for-creating-tokens).
+
+Other resources useful to continue your dapp development journey are:
+
+- [CryptoZombies](https://cryptozombies.io/): Learn Solidity building your own Zombie game
+- [Open Zeppelin Ethernaut](https://ethernaut.openzeppelin.com/): Complete levels by hacking smart contracts
+- [ChainShot](https://www.chainshot.com/): Solidity, Vyper and Web3.js coding tutorials
+- [Consensys Academy](https://consensys.net/academy/bootcamp/): Online Ethereum developer bootcamp
+- [Remix](https://remix.ethereum.org/): Web-based IDE for working on Solidity and Vyper smart contracts with in-line compile errors & code auto-complete
+- [Ganache](https://www.trufflesuite.com/ganache): One-click blockchain for local development
+- [Grid](https://grid.ethereum.org/): Download, configure, and run Ethereum nodes and tools
+- [Embark](https://framework.embarklabs.io/) All-in-one platform with smart contract workflows, debugger, testing, and more

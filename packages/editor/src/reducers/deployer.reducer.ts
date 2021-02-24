@@ -21,7 +21,7 @@ import { getCompilerOutputPath as getContractBuildPath } from './compilerLib';
 import { ProjectItemTypes, IProjectItem } from '../models';
 import sha256 from 'crypto-js/sha256';
 import { deployerActions } from '../actions';
-import { normalizeContractArgs, getContractArguments } from './deployerLib';
+import { normalizeContractArgs, getContractArguments, getContractValue } from './deployerLib';
 
 const initialState = {
     isRunning: false,
@@ -30,6 +30,7 @@ const initialState = {
     showMainnetWarning: false,
     showExternalProviderInfo: false,
     contractArgs: [],
+    value: '',
     buildFiles: [],
     outputPath: [],
     deployFiles: []
@@ -63,9 +64,12 @@ export default function deployerReducer(state = initialState, action: AnyAction,
             const dappFileData = projects.dappFileData;
 
             // 1. build arguments
-            const contractArgs = normalizeContractArgs(getContractArguments(tree, item, dappFileData));
+            const contractArgs = normalizeContractArgs(getContractArguments(tree, item, dappFileData), projects.accounts);
 
-            // 2. check if compilation is fresh
+            // 2. if constructor is payable get the value
+            const payableConstructorValue = getContractValue(tree, item, dappFileData);
+
+            // 3. check if compilation is fresh
             const findItemResult = findItemById(explorer.tree, item.id);
             if (!findItemResult.item) {
                 return state;
@@ -89,7 +93,8 @@ export default function deployerReducer(state = initialState, action: AnyAction,
                     // we know here that file already exists
                     buildFiles: contractBuildFolder.children,
                     outputPath,
-                    contractArgs
+                    contractArgs,
+                    value: payableConstructorValue
                 };
             }
         }

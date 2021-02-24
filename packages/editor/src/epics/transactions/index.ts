@@ -15,7 +15,11 @@
 // along with Superblocks Lab.  If not, see <http://www.gnu.org/licenses/>.
 
 import { updateTransactionStateEpic } from './updateTransactionState.epic';
+import { checkSentTransactionsEpic } from './checkSentTransactions.epic';
+import { updateTransactionEpic } from './updateTransaction.epic';
 
 export const transactionEpics = [
-    updateTransactionStateEpic
+    updateTransactionStateEpic,
+    checkSentTransactionsEpic,
+    updateTransactionEpic
 ];

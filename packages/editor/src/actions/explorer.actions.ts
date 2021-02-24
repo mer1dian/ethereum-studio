@@ -101,10 +101,10 @@ export const explorerActions = {
 
     // --------- Contract specific
     COMPILE_CONTRACT: 'COMPILE_CONTRACT',
-    compileContract(item: IProjectItem) {
+    compileContract(item: IProjectItem, shouldBeDeployed?: boolean) {
         return {
             type: explorerActions.COMPILE_CONTRACT,
-            data: item
+            data: {item, shouldBeDeployed}
         };
     },
 
@@ -206,9 +206,10 @@ export const explorerActions = {
 
     // ----- DappFile update
     UPDATE_DAPPFILE: 'UPDATE_DAPPFILE',
-    updateDappfile() {
+    updateDappfile(id?: string) {
         return {
-            type: explorerActions.UPDATE_DAPPFILE
+            type: explorerActions.UPDATE_DAPPFILE,
+            data: { id }
         };
     },
     UPDATE_DAPPFILE_SUCCESS: 'UPDATE_DAPPFILE_SUCCESS',

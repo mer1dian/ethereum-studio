@@ -17,46 +17,76 @@
 import React from 'react';
 import style from './style.less';
 import { IRawAbiDefinition } from '../../../../../../../models';
-import { StyledButton, TextInput } from '../../../../../../common';
+import { OnlyIf, StyledButton, TextInput } from '../../../../../../common';
 import { StyledButtonType } from '../../../../../../common/buttons/StyledButtonType';
+import { getPlaceholderText } from './utils';
+import classnames from 'classnames';
 
 interface IProps {
     rawAbiDefinition: IRawAbiDefinition;
-    call: (rawAbiDefinitionName: string, value: string) => void;
+    call: (rawAbiDefinitionName: string, args: any[], value: number) => void;
 }
 
 interface IState {
-    value: string;
+    args: string;
+    value: number;
 }
 
 export class Payable extends React.Component<IProps, IState> {
 
     state: IState = {
-        value: '',
+        args: '',
+        value: 0,
     };
 
     onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({ value: e.target.value || ' ' });
+        this.setState({ args: e.target.value || ' ' });
+    }
+
+    onValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ value: Number(e.target.value) || 0 });
     }
 
     call = () => {
         const { call, rawAbiDefinition } = this.props;
-        call(rawAbiDefinition.name, this.state.value);
+        const { args, value } = this.state;
+        call(rawAbiDefinition.name, args ? args.split(',') : [], value);
     }
 
     render() {
         const { rawAbiDefinition: data } = this.props;
+        const placeholder = getPlaceholderText(data.inputs);
+
         return (
-            <div className={style.container}>
+            <div className={classnames([style.container, style.containerBackground])}>
                 <StyledButton type={StyledButtonType.Payable} text={data.name} onClick={this.call} />
-                <TextInput
-                    id='name'
-                    onChangeText={this.onInputChange}
-                    defaultValue={this.state.value}
-                    placeholder={0}
-                    className={style.input}
-                    type='number'
-                />
+                <OnlyIf test={data.inputs.length > 0}>
+                    <TextInput
+                        id='input'
+                        onChangeText={this.onInputChange}
+                        defaultValue={this.state.args}
+                        placeholder={placeholder}
+                        title={placeholder}
+                        className={style.input}
+                    />
+                </OnlyIf>
+                <div className={style.break}/>
+                <div className={style.transactionValue}>
+                    <span>Value:</span>
+                    <div className={style.valueInput}>
+                        <TextInput
+                            id='input'
+                            onChangeText={this.onValueChange}
+                            defaultValue={this.state.value}
+                            placeholder='value'
+                            className={style.input}
+                            type='number'
+                        />
+                        <div className={style.wei}>
+                            <span>Wei</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }

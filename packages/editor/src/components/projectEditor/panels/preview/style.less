@@ -21,15 +21,20 @@
     flex-direction: column;
 
     .toolbar {
-        background-color: #F0F0F0;
+        background-color: #1e1e1e;
         height: 37px;
-        border-bottom: 1px solid #C1C1C1;
+        min-height: 37px;
         display: flex;
         align-items: center;
 
         button {
-            color: #626262;
+            color: #979797;
             padding-right: 0;
+            margin-right: auto;
+
+            &:hover {
+                color: white;
+            }
         }
 
         button:last-child {
@@ -39,7 +44,6 @@
         .urlBar {
             margin-left: 6px;
             flex: 1;
-            user-select: none;
             border: 1px solid #CCCCCC;
             border-radius: 3px;
             background-color: white;
@@ -49,38 +53,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            visibility: hidden;
-        }
-
-        .moreContainer {
-            position: absolute;
-            right: 10px;
-            background-color: white;
-            padding: 0 20px 20px;
-            box-shadow: 1px 2px 5px 2px rgba(0,0,0,0.5);
-            max-width: 300px;
-
-            .heading {
-                display: flex;
-                align-items: center;
-
-                *:first-child {
-                    flex: 1;
-                }
-
-                input {
-                    width: auto;
-                }
-
-                p {
-                    margin-bottom: 10px;
-                }
-            }
-
-            .description {
-                color: #868686;
-                font-size: 14px;
-            }
         }
     }
 
