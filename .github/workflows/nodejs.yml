@@ -1,7 +1,7 @@
  # GitHub Nodejs CI
 name: nodejs
 
-on: [push, pull_request]
+on: ['push']
 
 jobs:
   build:
@@ -21,8 +21,6 @@ jobs:
       - name: npm install, build, and test
         run: |
           npm install
-          npm i -g lerna
-          npm run-script build:clean
-          lerna bootstrap
+          ./node_modules/.bin/lerna bootstrap
         env:
           CI: true
