@@ -20,6 +20,7 @@ jobs:
           check-latest: true
       - name: npm install, build, and test
         run: |
+          npm i -g lerna 
           npm install
           lerna bootstrap --hoist --no-ci
         env:
