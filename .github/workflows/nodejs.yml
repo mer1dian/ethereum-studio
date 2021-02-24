@@ -21,6 +21,6 @@ jobs:
       - name: npm install, build, and test
         run: |
           npm install
-          ./node_modules/.bin/lerna bootstrap
+          lerna bootstrap --hoist --no-ci
         env:
-          CI: true
+          CI: ''
