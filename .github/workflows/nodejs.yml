@@ -21,6 +21,8 @@ jobs:
       - name: npm install, build, and test
         run: |
           npm install
+          npm i -g lerna
           npm run-script build:clean
+          lerna bootstrap
         env:
           CI: true
